@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: cost_joins
+    description: "A starter dbt model"
+    columns: 
+      - name: Year
+        description: "The primary key for this table"
+        data_tests:
+          - not_null
+
+  - name: cost_joins
+    tests:
+      - dbt_utils.type:
+          column_name: Year
+          type: integer
+
+
