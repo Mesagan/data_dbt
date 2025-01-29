@@ -15,3 +15,4 @@ group by i.id, customer_id, i.created_on, ist.number_of_instalments,
 instalment_1_payment_date, instalment_2_payment_date, instalment_3_payment_date
 order by days_overdue Desc)
 select * from over_due_date
+#be careful
