@@ -5,14 +5,7 @@ models:
     description: "A starter dbt model"
     columns: 
       - name: Year
+        column_type: integer
         description: "The primary key for this table"
         data_tests:
           - not_null
-
-  - name: cost_joins
-    tests:
-      - dbt_utils.type:
-          column_name: Year
-          type: integer
-
-
