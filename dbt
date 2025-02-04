@@ -1,0 +1,82 @@
+WITH eligible_bouncers AS 
+(SELECT 
+    id as customer_id,
+    '101' as promo_code
+FROM
+    pora-academy-cohort3.jubilee_groceries.customer AS C
+WHERE 
+    is_in_force=1
+    and id not in (
+        select DISTINCT customer_id from pora-academy-cohort3.jubilee_groceries.invoice)
+    order by customer_id),
+ August_average AS (
+    select 
+    c.id,
+    avg(i.quantity) august_average
+    from
+    pora-academy-cohort3.jubilee_groceries.customer c
+    join
+    pora-academy-cohort3.jubilee_groceries.invoice i
+    on i.customer_id = c.id
+    where 
+    c.is_in_force = 1 AND 
+    i.created_on BETWEEN '2024-08-01' AND '2024-08-31'
+    group by c.id
+    ),
+September_average AS (
+    select 
+    c.id,
+     avg(i.quantity) september_average
+    from
+    pora-academy-cohort3.jubilee_groceries.customer c
+    join
+    pora-academy-cohort3.jubilee_groceries.invoice i
+    on i.customer_id = c.id
+    where 
+    c.is_in_force = 1 AND 
+    i.created_on BETWEEN '2024-09-01' AND '2024-09-30'
+    group by c.id
+   ),
+Bulk_buzzer AS 
+(SELECT 
+     c.id AS customer_id,
+    '1001' AS promo_code
+FROM 
+    pora-academy-cohort3.jubilee_groceries.customer c
+join
+august_average aa
+on c.id = aa.id
+join
+september_average sa
+on aa.id = sa.id
+WHERE 
+    c.is_in_force = 1 AND 
+    sa.september_average > aa.august_average),
+
+Reactivators AS
+(select 
+    customer_id
+    FROM pora-academy-cohort3.jubilee_groceries.invoice
+    group by customer_id
+    HAVING
+    max(created_on) < '2024-08-01'),
+
+Eligible_inactive_customers AS 
+(select
+    c.id as customer_id,
+    '10001' as promo_code 
+FROM
+    pora-academy-cohort3.jubilee_groceries.customer c
+join
+reactivators r
+on c.id = r.customer_id
+WHERE
+c.is_in_force = 1 
+order by c.id )
+
+select * from eligible_bouncers
+union all 
+select * from Bulk_buzzer
+union all
+select * from Eligible_inactive_customers
+order by customer_id, promo_code;
